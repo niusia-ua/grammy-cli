@@ -1,0 +1,10 @@
+[package]
+version = "0.0.0"
+name = "grammy-cli"
+description = "An unofficial command line interface for grammY."
+authors = ["Nazar Antoniuk"]
+license = "MIT"
+keywords = ["grammy", "cli", "scaffolding"]
+categories = ["command-line-utilities"]
+repository = "https://github.com/niusia-ua/grammy-cli"
+edition = "2021"
