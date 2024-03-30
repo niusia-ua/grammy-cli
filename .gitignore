@@ -1,4 +1,12 @@
 target/
 
+# Development artifacts
+grammy-bot/
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+deno.lock
+
 .vscode/*
 !.vscode/extensions.json

@@ -1,0 +1,19 @@
+{
+  "type": "module",
+  "scripts": {
+    "start": "node --env-file=.env dist/bot.js",
+    "dev": "tsx --env-file=.env --no-warnings --watch src/bot.ts",
+    "build": "rimraf dist/ && tsc"
+  },
+  "dependencies": {
+    "envalid": "^8.0.0",
+    "grammy": "^1.21.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "dotenv": "^16.4.5",
+    "rimraf": "^5.0.5",
+    "tsx": "^4.7.1",
+    "typescript": "^5.4.3"
+  }
+}

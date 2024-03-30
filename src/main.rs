@@ -1,4 +1,8 @@
+use anyhow::Result;
 use clap::{Parser, Subcommand, ValueEnum};
+use commands::new::command_new_action;
+
+pub mod commands;
 
 #[derive(Parser, Debug)]
 #[command(version, about, arg_required_else_help = true)]
@@ -10,15 +14,7 @@ struct Cli {
 #[derive(Subcommand, Debug)]
 enum Command {
   /// Generate grammY project
-  New {
-    /// Project name according to NPM rules
-    /// https://docs.npmjs.com/cli/v10/configuring-npm/package-json#name
-    name: String,
-
-    /// Runtime to use
-    #[arg(long, value_enum, default_value = "deno")]
-    runtime: Runtime,
-  },
+  New,
 
   /// Generate grammY component
   #[clap(visible_alias = "g")]
@@ -40,12 +36,6 @@ enum Command {
 
   /// Display project information, installed plugins, and other useful system information
   Info,
-}
-
-#[derive(Copy, Clone, ValueEnum, Debug)]
-enum Runtime {
-  NodeJS,
-  Deno,
 }
 
 #[derive(Copy, Clone, ValueEnum, Debug)]
@@ -75,14 +65,11 @@ enum Plugin {
   ChatMembers,
 }
 
-fn main() {
+fn main() -> Result<()> {
   let cli = Cli::parse();
 
   match cli.command {
-    Command::New { name, runtime } => println!(
-      "You want to create a new project called `{}` that will use the {:?} engine!",
-      name, runtime
-    ),
+    Command::New => command_new_action()?,
     Command::Generate { schematic, name } => println!(
       "You want to generate the `{:?}` grammY component called `{}`!",
       schematic, name
@@ -93,4 +80,6 @@ fn main() {
     ),
     Command::Info => println!("You want to display information about your project!"),
   };
+
+  Ok(())
 }
