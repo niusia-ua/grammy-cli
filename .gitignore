@@ -1,7 +1,7 @@
 target/
 
 # Development artifacts
-grammy-bot/
+grammy-bot*/
 node_modules/
 package-lock.json
 yarn.lock
