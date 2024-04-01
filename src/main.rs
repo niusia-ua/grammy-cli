@@ -1,8 +1,11 @@
 use anyhow::Result;
 use clap::{Parser, Subcommand, ValueEnum};
-use commands::new::command_new_action;
 
 pub mod commands;
+use commands::{
+  info::{command_info_action, InfoOptions},
+  new::command_new_action,
+};
 
 #[derive(Parser, Debug)]
 #[command(version, about, arg_required_else_help = true)]
@@ -35,7 +38,7 @@ enum Command {
   },
 
   /// Display project information, installed plugins, and other useful system information
-  Info,
+  Info(InfoOptions),
 }
 
 #[derive(Copy, Clone, ValueEnum, Debug)]
@@ -78,7 +81,7 @@ fn main() -> Result<()> {
       "You want to add the following grammY plugins: {:?}!",
       plugin
     ),
-    Command::Info => println!("You want to display information about your project!"),
+    Command::Info(args) => command_info_action(args)?,
   };
 
   Ok(())
