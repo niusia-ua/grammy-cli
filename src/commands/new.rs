@@ -44,7 +44,7 @@ pub fn command_new_action() -> Result<()> {
     .collect::<Vec<_>>();
   let template = Select::new("Select the template:", known_templates).prompt()?;
 
-  copy(&template, &target_dir)?;
+  copy(template, &target_dir)?;
 
   println!("Great! Now type the following commands in the terminal and get to work!");
   println!("cd {}/", project_name);
