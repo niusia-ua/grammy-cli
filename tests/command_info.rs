@@ -21,8 +21,9 @@ fn should_display_grammy_info() -> Result<()> {
   let cmd = create_cmd(Some(vec!["info", "--path", "grammy-bot-info"]))?;
   let mut t = terminal::Terminal::new(cmd)?;
 
-  t.expect("[grammY Informaion]")?;
-  t.expect(r#"grammY Version: "^1.21.1""#)?;
+  t.expect("[grammY Information]")?;
+  t.expect("grammY: 1.21.1")?;
+  t.expect("Bot API: 7.1")?;
   t.expect("Installed Plugins: (no plugins installed)")?;
 
   common::clear_dir("grammy-bot-info")?;
