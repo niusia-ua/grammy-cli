@@ -49,13 +49,13 @@ struct PluginInfo {
 }
 
 fn get_grammy_info(deps: &Object) -> Result<GrammyInfo> {
-  let grammy_version = clear_version(&deps.get("grammy").unwrap().as_str().unwrap().to_string());
+  let grammy_version = clear_version(deps.get("grammy").unwrap().as_str().unwrap());
   let plugins = deps
     .iter()
     .filter(|(k, _v)| k.starts_with("@grammyjs/"))
     .map(|(name, version)| PluginInfo {
       name: name.to_string().replace("@grammyjs/", ""),
-      version: clear_version(&version.as_str().unwrap().to_string()),
+      version: clear_version(version.as_str().unwrap()),
     })
     .collect();
   let bot_api_version = get_bot_api_version(&grammy_version)?;
@@ -126,6 +126,6 @@ fn clear_version(version: &str) -> String {
     let version = package.split('@').last().unwrap();
     version.replace('v', "")
   } else {
-    version.replace(&['=', '>', '<', '^', '~'], "")
+    version.replace(['=', '>', '<', '^', '~'], "")
   }
 }
