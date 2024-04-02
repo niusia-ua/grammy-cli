@@ -22,7 +22,7 @@ pub fn command_info_action(args: InfoOptions) -> Result<()> {
   println!("{}", constants::GRAMMY_ASCII_ART);
   println!("[System Information]");
   println!("  OS: {}, {}", env::consts::OS, env::consts::ARCH);
-  println!("[grammY Informaion]");
+  println!("[grammY Information]");
   println!("  grammY: {}", grammy_info.grammy_version);
   println!("  Bot API: {}", grammy_info.bot_api_version);
   if !grammy_info.plugins.is_empty() {
