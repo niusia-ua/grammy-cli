@@ -19,7 +19,7 @@ pub fn command_info_action(args: InfoOptions) -> Result<()> {
   let project_deps = get_project_deps(&project_path)?;
   let grammy_info = get_grammy_info(&project_deps)?;
 
-  println!("{}", constants::GRAMMY_ASCII_ART);
+  println!("{}\n", constants::GRAMMY_ASCII_ART);
   println!("[System Information]");
   println!("  OS: {}, {}", env::consts::OS, env::consts::ARCH);
   println!("[grammY Information]");
