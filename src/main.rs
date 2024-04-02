@@ -1,5 +1,6 @@
-pub mod commands;
-pub mod constants;
+mod commands;
+mod constants;
+mod utils;
 
 use anyhow::Result;
 use clap::{Parser, Subcommand, ValueEnum};

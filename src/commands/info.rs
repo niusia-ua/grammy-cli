@@ -1,4 +1,4 @@
-use crate::constants;
+use crate::{constants, utils};
 use anyhow::{bail, Result};
 use clap::Args;
 use semver::{Version, VersionReq};
@@ -15,7 +15,7 @@ pub struct InfoOptions {
 }
 
 pub fn command_info_action(args: InfoOptions) -> Result<()> {
-  let project_path = get_project_path(args.path)?;
+  let project_path = utils::build_path(args.path)?;
   let project_deps = get_project_deps(&project_path)?;
   let grammy_info = get_grammy_info(&project_deps)?;
 
@@ -49,30 +49,21 @@ struct PluginInfo {
 }
 
 fn get_grammy_info(deps: &Object) -> Result<GrammyInfo> {
-  let grammy_version = clear_version(deps.get("grammy").unwrap().as_str().unwrap());
+  let grammy_version = utils::clear_semver(deps.get("grammy").unwrap().as_str().unwrap());
   let plugins = deps
     .iter()
     .filter(|(k, _v)| k.starts_with("@grammyjs/"))
     .map(|(name, version)| PluginInfo {
       name: name.to_string().replace("@grammyjs/", ""),
-      version: clear_version(version.as_str().unwrap()),
+      version: utils::clear_semver(version.as_str().unwrap()),
     })
     .collect();
-  let bot_api_version = get_bot_api_version(&grammy_version)?;
-
+  let bot_api_version = get_bot_api_version(&Version::parse(&grammy_version)?)?;
   Ok(GrammyInfo {
     grammy_version,
     bot_api_version,
     plugins,
   })
-}
-
-fn get_project_path(path: Option<String>) -> Result<path::PathBuf> {
-  let cwd = env::current_dir()?;
-  match path {
-    Some(path) => Ok(cwd.join(path)),
-    None => Ok(cwd),
-  }
 }
 
 fn get_project_deps(project_path: &path::Path) -> Result<Object> {
@@ -102,30 +93,12 @@ fn get_project_deps(project_path: &path::Path) -> Result<Object> {
   );
 }
 
-fn get_bot_api_version(grammy_version: &str) -> Result<String> {
-  let mut bot_api_version = None;
-  for (req, bav) in constants::KNOWN_GRAMMY_VERSION_MATCHES_WITH_BOT_API {
-    let version = Version::parse(grammy_version)?;
-    if VersionReq::parse(req)?.matches(&version) {
-      bot_api_version = Some(bav.to_string());
-      break;
-    }
-  }
-  match bot_api_version {
-    Some(bot_api_version) => Ok(bot_api_version),
+fn get_bot_api_version(grammy_version: &Version) -> Result<String> {
+  let result = constants::KNOWN_GRAMMY_VERSION_MATCHES_WITH_BOT_API
+    .iter()
+    .find(|(req, _)| VersionReq::parse(req).unwrap().matches(grammy_version));
+  match result {
+    Some((_, bot_api_version)) => Ok(bot_api_version.to_string()),
     None => Ok(String::from("Unknown")),
-  }
-}
-
-fn clear_version(version: &str) -> String {
-  if version.starts_with("https://deno.land/x/") {
-    let package = version
-      .split('/')
-      .find(|s| s.starts_with("grammy"))
-      .unwrap();
-    let version = package.split('@').last().unwrap();
-    version.replace('v', "")
-  } else {
-    version.replace(['=', '>', '<', '^', '~'], "")
   }
 }

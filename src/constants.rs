@@ -1,3 +1,7 @@
+use include_dir::{include_dir, Dir};
+
+pub static TEMPLATES_DIR: Dir = include_dir!("$CARGO_MANIFEST_DIR/templates/");
+
 // http://patorjk.com/software/taag/#p=display&h=0&f=Speed&t=grammY
 pub const GRAMMY_ASCII_ART: &str = r#"                                                 __  __
 _______ _______________ ________ ___ _______ ___ _ \/ /
