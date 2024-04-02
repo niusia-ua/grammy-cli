@@ -9,7 +9,7 @@ use commands::{
 };
 
 #[derive(Parser, Debug)]
-#[command(version, about, arg_required_else_help = true)]
+#[command(version, about, arg_required_else_help = true, before_help = constants::GRAMMY_ASCII_ART)]
 struct Cli {
   #[command(subcommand)]
   command: Command,
