@@ -1,7 +1,8 @@
+pub mod commands;
+pub mod constants;
+
 use anyhow::Result;
 use clap::{Parser, Subcommand, ValueEnum};
-
-pub mod commands;
 use commands::{
   info::{command_info_action, InfoOptions},
   new::command_new_action,
