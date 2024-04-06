@@ -13,9 +13,9 @@ fn should_display_grammy_info() -> Result<()> {
 
   t.expect("Enter the project name:")?;
   t.send("grammy-bot-info")?;
-  t.expect("Select the template:")?;
+  t.expect("Select a template:")?;
   t.select_line("Node.js", 2)?;
-  t.expect("Great! Now type the following commands in the terminal and get to work!")?;
+  t.expect("Done. Now run:")?;
 
   // Getting information about the project
   let cmd = create_cmd(Some(vec!["info", "--path", "grammy-bot-info"]))?;
