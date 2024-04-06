@@ -1,7 +1,7 @@
 use crate::{constants, utils};
-use anyhow::{bail, Result};
+use anyhow::Result;
 use inquire::{Select, Text};
-use std::path;
+use std::{fs, path};
 
 enum Runtime {
   Deno,
@@ -13,7 +13,7 @@ impl Runtime {
     match template_name {
       "Deno" => Ok(Runtime::Deno),
       "Node.js" => Ok(Runtime::NodeJS),
-      _ => bail!("Unknown template."),
+      _ => unreachable!("Unknown template."),
     }
   }
 }
@@ -25,14 +25,26 @@ pub fn command_new_action() -> Result<()> {
 
   let target_dir = utils::build_path(Some(project_name.clone()))?;
   if path::Path::new(&target_dir).exists() {
-    let overwrite_str =
-      Select::new("The project already exists. Overwrite?", vec!["Yes", "No"]).prompt()?;
-    match overwrite_str == "Yes" {
-      true => (),
-      false => {
-        println!("Aborting...");
+    let handling = Select::new(
+      &format!(
+        "The target directory \"{}\" already exists. Choose how to proceed:",
+        project_name
+      ),
+      vec![
+        "Clear the directory and continue",
+        "Ignore and continue (conflicting files will be overwritten)",
+        "Cancel operation",
+      ],
+    )
+    .prompt()?;
+    match handling {
+      "Clear the directory and continue" => fs::remove_dir_all(&target_dir)?,
+      "Ignore and continue (conflicting files will be overwritten)" => (),
+      "Cancel operation" => {
+        println!("Operation canceled");
         return Ok(());
       }
+      _ => unreachable!(),
     };
   }
 
@@ -40,17 +52,18 @@ pub fn command_new_action() -> Result<()> {
     .dirs()
     .map(|dir| dir.path().to_str().unwrap())
     .collect::<Vec<_>>();
-  let template = Select::new("Select the template:", known_templates).prompt()?;
+  let template = Select::new("Select a template:", known_templates).prompt()?;
 
+  println!("Scaffolding project in {}...", target_dir.display());
   utils::copy(template, &target_dir)?;
 
-  println!("Great! Now type the following commands in the terminal and get to work!");
-  println!("cd {}/", project_name);
+  println!("Done. Now run:");
+  println!("  cd {}", project_name);
   match Runtime::from_template(template)? {
-    Runtime::Deno => println!("deno task dev"),
+    Runtime::Deno => println!("  deno task dev"),
     Runtime::NodeJS => {
-      println!("npm install");
-      println!("npm run dev");
+      println!("  npm install");
+      println!("  npm run dev");
     }
   };
 
