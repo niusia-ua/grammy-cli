@@ -18,10 +18,18 @@ More useful features are planned to be added in the future.
 
 Currently, you need to have Rust installed to install the grammY CLI.
 
+From source:
+
 ```shell
 # First, clone the repository
 # cd grammy-cli
 cargo install
+```
+
+From GitHub:
+
+```shell
+cargo install --git https://github.com/niusia-ua/grammy-cli.git
 ```
 
 ## Usage
