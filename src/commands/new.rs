@@ -1,7 +1,8 @@
-use crate::{constants, utils};
+use std::fs;
+
+use crate::utils;
 use anyhow::Result;
 use inquire::{Select, Text};
-use std::{fs, path};
 
 enum Runtime {
   Deno,
@@ -18,48 +19,64 @@ impl Runtime {
   }
 }
 
+#[derive(PartialEq)]
+enum ExistenceProcessing {
+  Clear,
+  Overwrite,
+  Cancel,
+}
+
+impl ExistenceProcessing {
+  fn from_choice(choice: &str) -> Self {
+    match choice {
+      "Clear the directory and continue" => ExistenceProcessing::Clear,
+      "Ignore and continue (conflicting files will be overwritten)" => {
+        ExistenceProcessing::Overwrite
+      }
+      "Cancel operation" => ExistenceProcessing::Cancel,
+      _ => unreachable!(),
+    }
+  }
+}
+
 pub fn command_new_action() -> Result<()> {
   let project_name = Text::new("Enter the project name:")
     .with_default("grammy-bot")
     .prompt()?;
-
   let target_dir = utils::build_path(Some(project_name.clone()))?;
-  if path::Path::new(&target_dir).exists() {
-    let handling = Select::new(
-      &format!(
-        "The target directory \"{}\" already exists. Choose how to proceed:",
-        project_name
-      ),
-      vec![
-        "Clear the directory and continue",
-        "Ignore and continue (conflicting files will be overwritten)",
-        "Cancel operation",
-      ],
-    )
-    .prompt()?;
-    match handling {
-      "Clear the directory and continue" => fs::remove_dir_all(&target_dir)?,
-      "Ignore and continue (conflicting files will be overwritten)" => (),
-      "Cancel operation" => {
-        println!("Operation canceled");
-        return Ok(());
-      }
-      _ => unreachable!(),
-    };
+  let existence_procesing = match target_dir.exists() {
+    true => {
+      let choice = Select::new(
+        &format!(
+          r#"The target directory "{}" already exists. Choose how to proceed:"#,
+          project_name
+        ),
+        vec![
+          "Clear the directory and continue",
+          "Ignore and continue (conflicting files will be overwritten)",
+          "Cancel operation",
+        ],
+      )
+      .prompt()?;
+      ExistenceProcessing::from_choice(choice)
+    }
+    false => ExistenceProcessing::Overwrite,
+  };
+  if existence_procesing == ExistenceProcessing::Cancel {
+    println!("Operation cancelled.");
+    return Ok(());
   }
-
-  let known_templates = constants::TEMPLATES_DIR
-    .dirs()
-    .map(|dir| dir.path().to_str().unwrap())
-    .collect::<Vec<_>>();
-  let template = Select::new("Select a template:", known_templates).prompt()?;
+  let template = Select::new("Select a template:", utils::get_known_templates()).prompt()?;
 
   println!("Scaffolding project in {}...", target_dir.display());
-  utils::copy(template, &target_dir)?;
+  if existence_procesing == ExistenceProcessing::Clear {
+    fs::remove_dir_all(&target_dir)?;
+  }
+  utils::copy(&template, &target_dir)?;
 
   println!("Done. Now run:");
   println!("  cd {}", project_name);
-  match Runtime::from_template(template)? {
+  match Runtime::from_template(&template)? {
     Runtime::Deno => println!("  deno task dev"),
     Runtime::NodeJS => {
       println!("  npm install");

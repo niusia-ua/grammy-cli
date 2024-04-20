@@ -42,3 +42,10 @@ pub fn copy(from: impl AsRef<path::Path>, to: impl AsRef<path::Path>) -> Result<
   }
   Ok(())
 }
+
+pub fn get_known_templates() -> Vec<String> {
+  constants::TEMPLATES_DIR
+    .dirs()
+    .map(|dir| dir.path().to_str().unwrap().to_string())
+    .collect::<Vec<_>>()
+}
