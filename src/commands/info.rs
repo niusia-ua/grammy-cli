@@ -14,8 +14,8 @@ pub struct InfoOptions {
   path: Option<String>,
 }
 
-pub fn command_info_action(args: InfoOptions) -> Result<()> {
-  let project_path = utils::build_path(args.path)?;
+pub fn handler(opts: InfoOptions) -> Result<()> {
+  let project_path = utils::build_path(opts.path)?;
   let project_deps = get_project_deps(&project_path)?;
   let grammy_info = get_grammy_info(&project_deps)?;
 

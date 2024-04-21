@@ -4,10 +4,7 @@ mod utils;
 
 use anyhow::Result;
 use clap::{Parser, Subcommand};
-use commands::{
-  info::{command_info_action, InfoOptions},
-  new::command_new_action,
-};
+use commands::info::InfoOptions;
 
 #[derive(Parser, Debug)]
 #[command(version, about, arg_required_else_help = true, before_help = constants::GRAMMY_ASCII_ART)]
@@ -29,8 +26,8 @@ fn main() -> Result<()> {
   let cli = Cli::parse();
 
   match cli.command {
-    Command::New => command_new_action()?,
-    Command::Info(args) => command_info_action(args)?,
+    Command::New => commands::new::handler()?,
+    Command::Info(opts) => commands::info::handler(opts)?,
   };
 
   Ok(())

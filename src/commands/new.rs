@@ -39,7 +39,7 @@ impl ExistenceProcessing {
   }
 }
 
-pub fn command_new_action() -> Result<()> {
+pub fn handler() -> Result<()> {
   let project_name = Text::new("Enter the project name:")
     .with_default("grammy-bot")
     .prompt()?;
