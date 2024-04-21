@@ -1,4 +1,4 @@
-use std::fs;
+use std::{fs, path};
 
 use crate::utils;
 use anyhow::Result;
@@ -43,8 +43,9 @@ pub fn handler() -> Result<()> {
   let project_name = Text::new("Enter the project name:")
     .with_default("grammy-bot")
     .prompt()?;
-  let target_dir = utils::build_path(Some(project_name.clone()))?;
-  let existence_procesing = match target_dir.exists() {
+
+  let path = utils::build_path(Some(project_name.clone()))?;
+  let existence_procesing = match path.exists() {
     true => {
       let choice = Select::new(
         &format!(
@@ -62,21 +63,42 @@ pub fn handler() -> Result<()> {
     }
     false => ExistenceProcessing::Overwrite,
   };
+
   if existence_procesing == ExistenceProcessing::Cancel {
     println!("Operation cancelled.");
     return Ok(());
   }
+
   let template = Select::new("Select a template:", utils::get_known_templates()).prompt()?;
 
-  println!("Scaffolding project in {}...", target_dir.display());
-  if existence_procesing == ExistenceProcessing::Clear {
-    fs::remove_dir_all(&target_dir)?;
-  }
-  utils::copy(&template, &target_dir)?;
+  action(ActionNewOptions {
+    path,
+    template,
+    existence_procesing,
+  })?;
 
+  Ok(())
+}
+
+struct ActionNewOptions {
+  path: path::PathBuf,
+  template: String,
+  existence_procesing: ExistenceProcessing,
+}
+
+fn action(opts: ActionNewOptions) -> Result<()> {
+  println!("Scaffolding project in {}...", opts.path.display());
+
+  if opts.existence_procesing == ExistenceProcessing::Clear {
+    fs::remove_dir_all(&opts.path)?;
+  }
+
+  utils::copy(&opts.template, &opts.path)?;
+
+  let project_name = opts.path.file_name().unwrap().to_str().unwrap();
   println!("Done. Now run:");
   println!("  cd {}", project_name);
-  match Runtime::from_template(&template)? {
+  match Runtime::from_template(&opts.template)? {
     Runtime::Deno => println!("  deno task dev"),
     Runtime::NodeJS => {
       println!("  npm install");

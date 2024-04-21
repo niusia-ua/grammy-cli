@@ -17,24 +17,32 @@ pub struct InfoOptions {
 pub fn handler(opts: InfoOptions) -> Result<()> {
   let project_path = utils::build_path(opts.path)?;
   let project_deps = get_project_deps(&project_path)?;
-  let grammy_info = get_grammy_info(&project_deps)?;
+  let grammy = get_grammy_info(&project_deps)?;
 
+  action(ActionInfoOptions { grammy });
+
+  Ok(())
+}
+
+struct ActionInfoOptions {
+  grammy: GrammyInfo,
+}
+
+fn action(opts: ActionInfoOptions) {
   println!("{}\n", constants::GRAMMY_ASCII_ART);
   println!("[System Information]");
   println!("  OS: {}, {}", env::consts::OS, env::consts::ARCH);
   println!("[grammY Information]");
-  println!("  grammY: {}", grammy_info.grammy_version);
-  println!("  Bot API: {}", grammy_info.bot_api_version);
-  if !grammy_info.plugins.is_empty() {
+  println!("  grammY: {}", opts.grammy.grammy_version);
+  println!("  Bot API: {}", opts.grammy.bot_api_version);
+  if !opts.grammy.plugins.is_empty() {
     println!("  Installed Plugins:");
-    for plugin in grammy_info.plugins {
+    for plugin in opts.grammy.plugins {
       println!("    {}: {}", plugin.name, plugin.version);
     }
   } else {
     println!("  Installed Plugins: (no plugins installed)")
   }
-
-  Ok(())
 }
 
 struct GrammyInfo {
