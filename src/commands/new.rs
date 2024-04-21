@@ -2,6 +2,7 @@ use std::{fs, path};
 
 use crate::utils;
 use anyhow::Result;
+use clap::Args;
 use inquire::{Select, Text};
 
 enum Runtime {
@@ -39,7 +40,14 @@ impl ExistenceProcessing {
   }
 }
 
-pub fn handler() -> Result<()> {
+#[derive(Debug, Args)]
+pub struct NewOptions {
+  #[arg(short, long)]
+  /// Go through the process of creating a project, but do not actually perform any operations with the file system
+  dry_run: bool,
+}
+
+pub fn handler(opts: NewOptions) -> Result<()> {
   let project_name = Text::new("Enter the project name:")
     .with_default("grammy-bot")
     .prompt()?;
@@ -75,6 +83,7 @@ pub fn handler() -> Result<()> {
     path,
     template,
     existence_procesing,
+    dry_run: opts.dry_run,
   })?;
 
   Ok(())
@@ -84,16 +93,19 @@ struct ActionNewOptions {
   path: path::PathBuf,
   template: String,
   existence_procesing: ExistenceProcessing,
+  dry_run: bool,
 }
 
 fn action(opts: ActionNewOptions) -> Result<()> {
   println!("Scaffolding project in {}...", opts.path.display());
 
-  if opts.existence_procesing == ExistenceProcessing::Clear {
-    fs::remove_dir_all(&opts.path)?;
-  }
+  if !opts.dry_run {
+    if opts.existence_procesing == ExistenceProcessing::Clear {
+      fs::remove_dir_all(&opts.path)?;
+    }
 
-  utils::copy(&opts.template, &opts.path)?;
+    utils::copy(&opts.template, &opts.path)?;
+  }
 
   let project_name = opts.path.file_name().unwrap().to_str().unwrap();
   println!("Done. Now run:");
