@@ -33,7 +33,7 @@ pub fn get_grammy_info(root: &path::Path) -> Result<GrammyInfo> {
       version: version::clear_semver(version.as_str().unwrap()),
     })
     .collect();
-  let bot_api_version = version::get_bot_api_version(&semver::Version::parse(&grammy_version)?)?;
+  let bot_api_version = version::get_bot_api_version(&semver::Version::parse(&grammy_version)?);
   Ok(GrammyInfo {
     grammy_version,
     bot_api_version,

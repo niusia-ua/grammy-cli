@@ -4,7 +4,7 @@ use std::{fs, path};
 
 const KNOWN_CONFIG_FILES: [&str; 3] = ["deno.json", "deno.jsonc", "package.json"];
 
-pub type Object = serde_json::Map<String, serde_json::Value>;
+type Object = serde_json::Map<String, serde_json::Value>;
 
 pub struct PackageConfig {
   runtime: Runtime,
@@ -39,5 +39,33 @@ impl PackageConfig {
       Runtime::NodeJS => "dependencies",
     };
     self.content.get(key).unwrap().as_object().unwrap()
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  #[should_panic]
+  fn should_bail_if_no_config_file_found() {
+    let path = path::Path::new("templates");
+    PackageConfig::new(path).unwrap();
+  }
+
+  #[test]
+  fn should_parse_package_json() {
+    let path = path::Path::new("templates/Node.js");
+    let config = PackageConfig::new(path).unwrap();
+    assert_eq!(config.runtime, Runtime::NodeJS);
+    assert!(config.deps().contains_key("grammy"));
+  }
+
+  #[test]
+  fn should_parse_deno_json() {
+    let path = path::Path::new("templates/Deno");
+    let config = PackageConfig::new(path).unwrap();
+    assert_eq!(config.runtime, Runtime::Deno);
+    assert!(config.deps().contains_key("grammy"));
   }
 }

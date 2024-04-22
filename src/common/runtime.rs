@@ -1,5 +1,6 @@
 use anyhow::Result;
 
+#[derive(Debug, PartialEq)]
 pub enum Runtime {
   Deno,
   NodeJS,
