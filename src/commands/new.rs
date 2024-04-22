@@ -1,44 +1,12 @@
 use std::{fs, path};
 
-use crate::utils;
+use crate::{
+  common::{existence::ExistenceProcessing, runtime::Runtime, template},
+  utils,
+};
 use anyhow::Result;
 use clap::Args;
 use inquire::{Select, Text};
-
-enum Runtime {
-  Deno,
-  NodeJS,
-}
-
-impl Runtime {
-  fn from_template(template_name: &str) -> Result<Self> {
-    match template_name {
-      "Deno" => Ok(Runtime::Deno),
-      "Node.js" => Ok(Runtime::NodeJS),
-      _ => unreachable!("Unknown template."),
-    }
-  }
-}
-
-#[derive(PartialEq)]
-enum ExistenceProcessing {
-  Clear,
-  Overwrite,
-  Cancel,
-}
-
-impl ExistenceProcessing {
-  fn from_choice(choice: &str) -> Self {
-    match choice {
-      "Clear the directory and continue" => ExistenceProcessing::Clear,
-      "Ignore and continue (conflicting files will be overwritten)" => {
-        ExistenceProcessing::Overwrite
-      }
-      "Cancel operation" => ExistenceProcessing::Cancel,
-      _ => unreachable!(),
-    }
-  }
-}
 
 #[derive(Debug, Args)]
 pub struct NewOptions {
@@ -77,7 +45,7 @@ pub fn handler(opts: NewOptions) -> Result<()> {
     return Ok(());
   }
 
-  let template = Select::new("Select a template:", utils::get_known_templates()).prompt()?;
+  let template = Select::new("Select a template:", template::get_known_templates()).prompt()?;
 
   action(ActionNewOptions {
     path,
@@ -104,7 +72,7 @@ fn action(opts: ActionNewOptions) -> Result<()> {
       fs::remove_dir_all(&opts.path)?;
     }
 
-    utils::copy(&opts.template, &opts.path)?;
+    template::copy(&opts.template, &opts.path)?;
   }
 
   let project_name = opts.path.file_name().unwrap().to_str().unwrap();

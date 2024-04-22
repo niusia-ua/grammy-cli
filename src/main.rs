@@ -1,12 +1,12 @@
 mod commands;
-mod constants;
+mod common;
 mod utils;
 
 use anyhow::Result;
 use clap::{Parser, Subcommand};
 
 #[derive(Parser, Debug)]
-#[command(version, about, arg_required_else_help = true, before_help = constants::GRAMMY_ASCII_ART)]
+#[command(version, about, arg_required_else_help = true, before_help = common::grammy::ASCII_ART)]
 struct Cli {
   #[command(subcommand)]
   command: Command,
