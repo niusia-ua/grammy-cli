@@ -1,6 +1,7 @@
 use semver::{Version, VersionReq};
 
-const KNOWN_GRAMMY_VERSION_MATCHES_WITH_BOT_API: [(&str, &str); 19] = [
+const KNOWN_GRAMMY_VERSION_MATCHES_WITH_BOT_API: [(&str, &str); 20] = [
+  ("^1.23.0", "7.3"),
   ("^1.22.0", "7.2"),
   ("^1.21.0", "7.1"),
   ("^1.20.0", "7.0"),
