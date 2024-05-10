@@ -21,7 +21,7 @@ pub fn handler(opts: NewOptions) -> Result<()> {
     .prompt()?;
 
   let path = utils::build_path(Some(project_name.clone()))?;
-  let existence_procesing = match path.exists() {
+  let existence_processing = match path.exists() {
     true => {
       let choice = Select::new(
         &format!(
@@ -40,7 +40,7 @@ pub fn handler(opts: NewOptions) -> Result<()> {
     false => ExistenceProcessing::Overwrite,
   };
 
-  if existence_procesing == ExistenceProcessing::Cancel {
+  if existence_processing == ExistenceProcessing::Cancel {
     println!("Operation cancelled.");
     return Ok(());
   }
@@ -50,7 +50,7 @@ pub fn handler(opts: NewOptions) -> Result<()> {
   action(ActionNewOptions {
     path,
     template,
-    existence_procesing,
+    existence_processing,
     dry_run: opts.dry_run,
   })?;
 
@@ -60,7 +60,7 @@ pub fn handler(opts: NewOptions) -> Result<()> {
 struct ActionNewOptions {
   path: path::PathBuf,
   template: String,
-  existence_procesing: ExistenceProcessing,
+  existence_processing: ExistenceProcessing,
   dry_run: bool,
 }
 
@@ -68,7 +68,7 @@ fn action(opts: ActionNewOptions) -> Result<()> {
   println!("Scaffolding project in {}...", opts.path.display());
 
   if !opts.dry_run {
-    if opts.existence_procesing == ExistenceProcessing::Clear {
+    if opts.existence_processing == ExistenceProcessing::Clear {
       fs::remove_dir_all(&opts.path)?;
     }
 
