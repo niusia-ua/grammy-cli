@@ -7,7 +7,7 @@ env:
 
 jobs:
   test:
-    name: Test
+    name: Testing
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -19,28 +19,42 @@ jobs:
         run: cargo test
 
   fmt:
-    name: Rustfmt
+    name: Formatting
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt
-      - name: Enforce formatting
+      - name: Enforce Rust formatting
         run: cargo fmt --check
 
-  clippy:
-    name: Clippy
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+      - name: Enforce Deno formatting
+        run: deno fmt --prose-wrap preserve --ignore=target,node_modules --check
+
+  lint:
+    name: Linting
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy
       - uses: Swatinem/rust-cache@v2
-      - name: Linting
+      - name: Clippy
         run: cargo clippy -- -D warnings
+
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+      - name: Deno
+        run: deno lint

@@ -1,5 +1,5 @@
 [hooks]
-pre-commit = "cargo fmt --check && cargo clippy"
+pre-commit = "cargo fmt --check && cargo clippy && deno fmt --prose-wrap preserve --ignore=target,node_modules --check && deno lint"
 pre-push = "cargo test"
 
 [logging]
